@@ -40,9 +40,9 @@ export default function Navbar() {
   return (
     <>
       <nav className="sticky top-0 z-50 w-full border-b bg-card backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="container flex h-16 items-center justify-between px-6">
-          <div className="flex items-center space-x-4 flex-shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center">
+        <div className="w-full max-w-screen-2xl mx-auto flex h-16 items-center justify-between px-6">
+          <div className="flex items-center flex-shrink-0" style={{ minWidth: '120px' }}>
+            <div className="flex h-10 w-10 items-center justify-center mr-4">
               <Image
                 src="/icon.png"
                 alt="Humm Logo"
@@ -61,7 +61,8 @@ export default function Navbar() {
               Humm
             </span>
           </div>
-          <div className="flex-1 flex justify-end pr-8">
+          
+          <div className="flex-1 flex justify-center mx-8">
             <div className="relative w-full max-w-md">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -70,7 +71,8 @@ export default function Navbar() {
               />
             </div>
           </div>
-          <div className="flex items-center space-x-3 flex-shrink-0">
+          
+          <div className="flex items-center flex-shrink-0 gap-3" style={{ minWidth: '200px' }}>
             <Button
               variant="ghost"
               size="icon"
