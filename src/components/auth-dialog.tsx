@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { useToast } from "@/hooks/use-toast"
 
 interface AuthDialogProps {
   open: boolean
@@ -24,11 +26,71 @@ export default function AuthDialog({ open, onOpenChange, mode, onModeChange }: A
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [username, setUsername] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted:", { email, password, username })
-    onOpenChange(false)
+    setIsLoading(true)
+
+    try {
+      if (mode === "register") {
+        // Register user
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password }),
+        })
+
+        if (res.ok) {
+          toast({
+            title: "Account created!",
+            description: "You can now sign in with your credentials.",
+          })
+          onModeChange("login")
+          setUsername("")
+          setPassword("")
+        } else {
+          const data = await res.json()
+          toast({
+            title: "Error",
+            description: data.error || "Something went wrong",
+            variant: "destructive",
+          })
+        }
+      } else {
+        // Sign in user
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        })
+
+        if (result?.ok) {
+          toast({
+            title: "Welcome back!",
+            description: "You have been signed in successfully.",
+          })
+          onOpenChange(false)
+          setEmail("")
+          setPassword("")
+        } else {
+          toast({
+            title: "Error",
+            description: "Invalid email or password",
+            variant: "destructive",
+          })
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -92,8 +154,11 @@ export default function AuthDialog({ open, onOpenChange, mode, onModeChange }: A
             )}
           </div>
 
-          <Button type="submit" className="w-full">
-            {mode === "login" ? "Sign In" : "Create Account"}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading 
+              ? "Please wait..." 
+              : mode === "login" ? "Sign In" : "Create Account"
+            }
           </Button>
 
           <div className="relative">
@@ -105,7 +170,7 @@ export default function AuthDialog({ open, onOpenChange, mode, onModeChange }: A
             </div>
           </div>
 
-          <Button type="button" variant="outline" className="w-full">
+          <Button type="button" variant="outline" className="w-full" disabled={isLoading}>
             Continue with Google
           </Button>
 
