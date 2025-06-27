@@ -82,7 +82,7 @@ export default function AuthDialog({ open, onOpenChange, mode, onModeChange }: A
           })
         }
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
